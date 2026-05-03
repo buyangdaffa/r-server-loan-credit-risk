@@ -1,0 +1,4 @@
+# Core runtime (converter + analysis). Pin versions for reproducibility.
+# Upgrade deliberately: pip install -U pandas && pip freeze > requirements.txt
+pandas==2.2.3
+numpy==2.1.3

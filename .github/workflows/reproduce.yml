@@ -1,0 +1,38 @@
+name: Reproduce
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Regenerate processed CSVs
+        run: python src/convert_data_to_csv.py
+
+      - name: Smoke check outputs
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          root = Path("data/processed")
+          for name in ("Loan.csv", "Borrower.csv", "Loan_Prod.csv", "Borrower_Prod.csv"):
+              p = root / name
+              assert p.is_file(), f"missing {p}"
+              df = pd.read_csv(p)
+              assert len(df) > 0, f"empty {p}"
+          print("ok:", [f.name for f in sorted(root.glob("*.csv"))])
+          PY

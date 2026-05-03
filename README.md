@@ -7,7 +7,7 @@ Streamlit app for single and batch scoring.
 
 [![Reproduce](https://github.com/buyangdaffa/r-server-loan-credit-risk/actions/workflows/reproduce.yml/badge.svg)](https://github.com/buyangdaffa/r-server-loan-credit-risk/actions/workflows/reproduce.yml)
 
-> Live demo: _add Streamlit Community Cloud URL after first deploy._
+> Live demo: [buyangdaffa-r-server-loan-credit-risk.streamlit.app](https://buyangdaffa-r-server-loan-credit-risk.streamlit.app/)
 
 ## Highlights
 

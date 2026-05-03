@@ -25,6 +25,33 @@ if str(ROOT) not in sys.path:
 
 from src import config, data as data_mod, explain, modeling, scoring  # noqa: E402
 
+# Short tooltips (hover the ⓘ next to each label in the form).
+FEATURE_HELP: dict[str, str] = {
+    "loanAmount": "Total loan principal requested, in dollars.",
+    "interestRate": "Annual interest rate on the loan (APR), as a percentage.",
+    "monthlyPayment": "Scheduled monthly payment amount, in dollars.",
+    "term": "Repayment term length (e.g. 36 / 48 / 60 months).",
+    "grade": "Underwriting risk grade (A1–E3); higher letter / number usually means higher risk.",
+    "purpose": "Stated use of the loan (e.g. debt consolidation, home improvement).",
+    "isJointApplication": "1 if the application includes a co-borrower, else 0.",
+    "annualIncome": "Borrower’s self-reported annual income, in dollars.",
+    "dtiRatio": "Debt-to-income ratio: monthly debt payments as a share of income (percentage).",
+    "lengthCreditHistory": "Length of credit history on file, in years.",
+    "homeOwnership": "Housing status: rent, own, or mortgage.",
+    "yearsEmployment": "How long the borrower has been in their current employment band.",
+    "residentialState": "Two-letter US state code for the borrower’s residence.",
+    "incomeVerified": "1 if income was verified (e.g. with documents), else 0.",
+    "numTotalCreditLines": "Total number of credit lines ever on the credit file.",
+    "numOpenCreditLines": "Number of currently open credit lines.",
+    "numOpenCreditLines1Year": "New credit lines opened in the last 12 months.",
+    "revolvingBalance": "Total outstanding balance on revolving accounts (e.g. cards), in dollars.",
+    "revolvingUtilizationRate": "Revolving balance divided by limits, as a percentage (credit usage).",
+    "numDerogatoryRec": "Count of serious negative items (e.g. collections, public records).",
+    "numDelinquency2Years": "Number of delinquencies in the last 24 months.",
+    "numChargeoff1year": "Number of charge-offs in the last 12 months.",
+    "numInquiries6Mon": "Hard credit inquiries in the last 6 months.",
+}
+
 st.set_page_config(
     page_title="Loan credit risk",
     page_icon="ring",
@@ -101,6 +128,7 @@ def sidebar_controls(artifacts: dict) -> tuple[str, float]:
         "Model",
         options=["LightGBM (recommended)", "Logistic regression (baseline)"],
         index=0,
+        help="LightGBM is the stronger ranker; logistic regression is a transparent baseline on binned features.",
     )
     model_key = "lgbm" if model_label.startswith("LightGBM") else "lr"
     suggested = float(artifacts["thresholds"].get(model_key, 0.5))
@@ -110,6 +138,7 @@ def sidebar_controls(artifacts: dict) -> tuple[str, float]:
         max_value=0.99,
         value=round(suggested, 3),
         step=0.005,
+        help="Predicted probability of default (bad loan). At or above this cutoff we label the application as decline; below is approve. Tune for your risk appetite.",
     )
     st.sidebar.caption(f"KS-optimal threshold for selected model: {suggested:.3f}")
     return model_key, threshold
@@ -126,6 +155,11 @@ def render_single_tab(artifacts: dict, model_key: str, threshold: float) -> None
         "Default values come from a real record in the held-out test set, "
         "so you can press Predict immediately or override any field."
     )
+    with st.expander("How to read the inputs"):
+        st.markdown(
+            "Hover the **ⓘ** icon next to any field label for a one-line definition. "
+            "All fields match the synthetic Microsoft loan + borrower sample used to train the models."
+        )
     example = load_example_row()
     options = load_categorical_options()
 
@@ -134,45 +168,170 @@ def render_single_tab(artifacts: dict, model_key: str, threshold: float) -> None
 
         with c1:
             st.markdown("**Loan**")
-            loan_amount = st.number_input("loanAmount ($)", value=float(example.get("loanAmount", 15000.0)), min_value=0.0, step=500.0)
-            interest_rate = st.number_input("interestRate (%)", value=float(example.get("interestRate", 10.0)), min_value=0.0, max_value=40.0, step=0.1)
-            monthly_payment = st.number_input("monthlyPayment ($)", value=float(example.get("monthlyPayment", 400.0)), min_value=0.0, step=10.0)
-            term = st.selectbox("term", options=options["term"], index=options["term"].index(example.get("term") or options["term"][0]))
-            grade = st.selectbox("grade", options=options["grade"], index=options["grade"].index(example.get("grade") or options["grade"][0]))
-            purpose = st.selectbox("purpose", options=options["purpose"], index=options["purpose"].index(example.get("purpose") or options["purpose"][0]))
-            is_joint = st.selectbox("isJointApplication", options=[0, 1], index=int(example.get("isJointApplication") or 0))
+            loan_amount = st.number_input(
+                "loanAmount ($)",
+                value=float(example.get("loanAmount", 15000.0)),
+                min_value=0.0,
+                step=500.0,
+                help=FEATURE_HELP["loanAmount"],
+            )
+            interest_rate = st.number_input(
+                "interestRate (%)",
+                value=float(example.get("interestRate", 10.0)),
+                min_value=0.0,
+                max_value=40.0,
+                step=0.1,
+                help=FEATURE_HELP["interestRate"],
+            )
+            monthly_payment = st.number_input(
+                "monthlyPayment ($)",
+                value=float(example.get("monthlyPayment", 400.0)),
+                min_value=0.0,
+                step=10.0,
+                help=FEATURE_HELP["monthlyPayment"],
+            )
+            term = st.selectbox(
+                "term",
+                options=options["term"],
+                index=options["term"].index(example.get("term") or options["term"][0]),
+                help=FEATURE_HELP["term"],
+            )
+            grade = st.selectbox(
+                "grade",
+                options=options["grade"],
+                index=options["grade"].index(example.get("grade") or options["grade"][0]),
+                help=FEATURE_HELP["grade"],
+            )
+            purpose = st.selectbox(
+                "purpose",
+                options=options["purpose"],
+                index=options["purpose"].index(example.get("purpose") or options["purpose"][0]),
+                help=FEATURE_HELP["purpose"],
+            )
+            is_joint = st.selectbox(
+                "isJointApplication",
+                options=[0, 1],
+                index=int(example.get("isJointApplication") or 0),
+                help=FEATURE_HELP["isJointApplication"],
+            )
 
         with c2:
             st.markdown("**Borrower**")
-            annual_income = st.number_input("annualIncome ($)", value=float(example.get("annualIncome", 60000.0)), min_value=0.0, step=1000.0)
-            dti_ratio = st.number_input("dtiRatio", value=float(example.get("dtiRatio", 20.0)), min_value=0.0, max_value=100.0, step=0.1)
-            length_credit = st.number_input("lengthCreditHistory (years)", value=int(example.get("lengthCreditHistory", 10)), min_value=0, step=1)
-            home_ownership = st.selectbox("homeOwnership", options=options["homeOwnership"], index=options["homeOwnership"].index(example.get("homeOwnership") or options["homeOwnership"][0]))
+            annual_income = st.number_input(
+                "annualIncome ($)",
+                value=float(example.get("annualIncome", 60000.0)),
+                min_value=0.0,
+                step=1000.0,
+                help=FEATURE_HELP["annualIncome"],
+            )
+            dti_ratio = st.number_input(
+                "dtiRatio",
+                value=float(example.get("dtiRatio", 20.0)),
+                min_value=0.0,
+                max_value=100.0,
+                step=0.1,
+                help=FEATURE_HELP["dtiRatio"],
+            )
+            length_credit = st.number_input(
+                "lengthCreditHistory (years)",
+                value=int(example.get("lengthCreditHistory", 10)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["lengthCreditHistory"],
+            )
+            home_ownership = st.selectbox(
+                "homeOwnership",
+                options=options["homeOwnership"],
+                index=options["homeOwnership"].index(example.get("homeOwnership") or options["homeOwnership"][0]),
+                help=FEATURE_HELP["homeOwnership"],
+            )
             years_employment = st.selectbox(
                 "yearsEmployment",
                 options=options["yearsEmployment"],
                 index=options["yearsEmployment"].index(example.get("yearsEmployment") or options["yearsEmployment"][0])
                 if (example.get("yearsEmployment") in options["yearsEmployment"]) else 0,
+                help=FEATURE_HELP["yearsEmployment"],
             )
             residential_state = st.selectbox(
                 "residentialState",
                 options=options["residentialState"],
                 index=options["residentialState"].index(example.get("residentialState") or options["residentialState"][0])
                 if (example.get("residentialState") in options["residentialState"]) else 0,
+                help=FEATURE_HELP["residentialState"],
             )
-            income_verified = st.selectbox("incomeVerified", options=[0, 1], index=int(example.get("incomeVerified") or 0))
+            income_verified = st.selectbox(
+                "incomeVerified",
+                options=[0, 1],
+                index=int(example.get("incomeVerified") or 0),
+                help=FEATURE_HELP["incomeVerified"],
+            )
 
         with c3:
             st.markdown("**Credit history**")
-            num_total = st.number_input("numTotalCreditLines", value=int(example.get("numTotalCreditLines", 10)), min_value=0, step=1)
-            num_open = st.number_input("numOpenCreditLines", value=int(example.get("numOpenCreditLines", 7) or 7), min_value=0, step=1)
-            num_open_1y = st.number_input("numOpenCreditLines1Year", value=int(example.get("numOpenCreditLines1Year", 3)), min_value=0, step=1)
-            revolving_balance = st.number_input("revolvingBalance ($)", value=int(example.get("revolvingBalance", 15000)), min_value=0, step=500)
-            revolving_util = st.number_input("revolvingUtilizationRate (%)", value=float(example.get("revolvingUtilizationRate", 50.0)), min_value=0.0, max_value=200.0, step=0.5)
-            num_derog = st.number_input("numDerogatoryRec", value=int(example.get("numDerogatoryRec", 0)), min_value=0, step=1)
-            num_delinq = st.number_input("numDelinquency2Years", value=int(example.get("numDelinquency2Years", 0)), min_value=0, step=1)
-            num_chargeoff = st.number_input("numChargeoff1year", value=int(example.get("numChargeoff1year", 0)), min_value=0, step=1)
-            num_inq = st.number_input("numInquiries6Mon", value=int(example.get("numInquiries6Mon", 0)), min_value=0, step=1)
+            num_total = st.number_input(
+                "numTotalCreditLines",
+                value=int(example.get("numTotalCreditLines", 10)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numTotalCreditLines"],
+            )
+            num_open = st.number_input(
+                "numOpenCreditLines",
+                value=int(example.get("numOpenCreditLines", 7) or 7),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numOpenCreditLines"],
+            )
+            num_open_1y = st.number_input(
+                "numOpenCreditLines1Year",
+                value=int(example.get("numOpenCreditLines1Year", 3)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numOpenCreditLines1Year"],
+            )
+            revolving_balance = st.number_input(
+                "revolvingBalance ($)",
+                value=int(example.get("revolvingBalance", 15000)),
+                min_value=0,
+                step=500,
+                help=FEATURE_HELP["revolvingBalance"],
+            )
+            revolving_util = st.number_input(
+                "revolvingUtilizationRate (%)",
+                value=float(example.get("revolvingUtilizationRate", 50.0)),
+                min_value=0.0,
+                max_value=200.0,
+                step=0.5,
+                help=FEATURE_HELP["revolvingUtilizationRate"],
+            )
+            num_derog = st.number_input(
+                "numDerogatoryRec",
+                value=int(example.get("numDerogatoryRec", 0)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numDerogatoryRec"],
+            )
+            num_delinq = st.number_input(
+                "numDelinquency2Years",
+                value=int(example.get("numDelinquency2Years", 0)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numDelinquency2Years"],
+            )
+            num_chargeoff = st.number_input(
+                "numChargeoff1year",
+                value=int(example.get("numChargeoff1year", 0)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numChargeoff1year"],
+            )
+            num_inq = st.number_input(
+                "numInquiries6Mon",
+                value=int(example.get("numInquiries6Mon", 0)),
+                min_value=0,
+                step=1,
+                help=FEATURE_HELP["numInquiries6Mon"],
+            )
 
         submitted = st.form_submit_button("Predict", type="primary")
 
@@ -260,7 +419,11 @@ def render_batch_tab(artifacts: dict, model_key: str, threshold: float) -> None:
     with st.expander("Expected schema"):
         st.code(", ".join(expected), language="text")
 
-    uploaded = st.file_uploader("CSV file", type=["csv"])
+    uploaded = st.file_uploader(
+        "CSV file",
+        type=["csv"],
+        help="Must include the same columns as the single-application form (see Expected schema). One row per loan application.",
+    )
     if uploaded is None:
         st.info("Tip: download a sample from `data/processed/Loan.csv` joined with `Borrower.csv`.")
         return

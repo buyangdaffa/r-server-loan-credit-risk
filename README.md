@@ -2,7 +2,14 @@
 
 This repository contains only the **tabular data files** from Microsoft’s [r-server-loan-credit-risk](https://github.com/microsoft/r-server-loan-credit-risk) sample, retained under the **MIT License** (see `LICENSE`). The original solution code, ARM templates, and SQL/R scripts were removed so the data can be used in a separate project with a clean history.
 
-## Files (`Data/`)
+## Layout
+
+| Path | Contents |
+|------|----------|
+| `data/raw/` | Tab-separated `.txt` from the upstream sample (source of truth in git). |
+| `data/processed/` | UTF-8 `.csv` generated from raw files (e.g. `python src/convert_data_to_csv.py`). |
+
+## Raw files (`data/raw/`)
 
 | File | Description |
 |------|-------------|

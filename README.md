@@ -1,18 +1,18 @@
-<img src="Resources/images/loan.jpg" align="right" width="50%">
+# Loan credit risk — dataset
 
-# Loan Credit Risk 
-Predict risk of customers defaulting on loans.
-### Deploy to Azure on SQL Server
-[![Deploy to Azure (SQL Server)](https://raw.githubusercontent.com/Azure/Azure-CortanaIntelligence-SolutionAuthoringWorkspace/master/docs/images/DeployToAzure.PNG)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2Fr-server-loan-credit-risk%2Fmaster%2FArmTemplates%2Floancreditrisk.json)
+This repository contains only the **tabular data files** from Microsoft’s [r-server-loan-credit-risk](https://github.com/microsoft/r-server-loan-credit-risk) sample, retained under the **MIT License** (see `LICENSE`). The original solution code, ARM templates, and SQL/R scripts were removed so the data can be used in a separate project with a clean history.
 
-## More samples and information
+## Files (`Data/`)
 
-> Discover more examples at [Microsoft Machine Learning Server](https://github.com/Microsoft/ML-Server)
+| File | Description |
+|------|-------------|
+| `Loan.txt` | Simulated loan-level records (development-scale sample). |
+| `Borrower.txt` | Simulated borrower-level records (development-scale sample). |
+| `Loan_Prod.txt` | Small production-style loan sample from the upstream template. |
+| `Borrower_Prod.txt` | Small production-style borrower sample from the upstream template. |
 
-For all documentation, visit the [Loan Credit Risk website](https://microsoft.github.io/r-server-loan-credit-risk/).
+Use `git clone` rather than “Download ZIP” if line endings matter for your tooling (per upstream guidance).
 
-**NOTE:** Please don't use "Download ZIP" to get this repository, as it will change the line endings in the data files. Use "git clone" to get a local copy of this repository. 
+## Attribution
 
-## Contributing
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+Data and original sample: Copyright (c) Microsoft Corporation. SPDX-License-Identifier: MIT. Full text in `LICENSE`.

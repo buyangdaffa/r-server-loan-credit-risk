@@ -1,0 +1,12 @@
+# Optional Conda/Mamba environment (same pins as requirements.txt via pip).
+# Create:  conda env create -f environment.yml
+# Update:  conda env update -f environment.yml --prune
+# Remove:  conda env remove -n loan-credit-risk
+name: loan-credit-risk
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.*
+  - pip
+  - pip:
+      - -r requirements.txt

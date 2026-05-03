@@ -1,0 +1,50 @@
+{
+  "created_at": "2026-05-03T15:03:47.320969+00:00",
+  "git_sha": "b64993aa846c0c3d89db07c64cb0777e0053dd2b",
+  "random_state": 42,
+  "test_size": 0.25,
+  "n_train": 75000,
+  "n_test": 25000,
+  "train_pos_rate": 0.10004,
+  "test_pos_rate": 0.10004,
+  "python_version": "3.12.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "feature_schema": {
+    "numeric": [
+      "loanAmount",
+      "interestRate",
+      "monthlyPayment",
+      "annualIncome",
+      "dtiRatio",
+      "lengthCreditHistory",
+      "numTotalCreditLines",
+      "numOpenCreditLines",
+      "numOpenCreditLines1Year",
+      "revolvingBalance",
+      "revolvingUtilizationRate",
+      "numDerogatoryRec",
+      "numDelinquency2Years",
+      "numChargeoff1year",
+      "numInquiries6Mon"
+    ],
+    "categorical": [
+      "purpose",
+      "term",
+      "grade",
+      "residentialState",
+      "yearsEmployment",
+      "homeOwnership"
+    ],
+    "binary": [
+      "isJointApplication",
+      "incomeVerified"
+    ]
+  },
+  "sklearn_version": "1.5.2",
+  "lightgbm_version": "4.5.0",
+  "trained_models": [
+    "lr_model",
+    "lgbm_model"
+  ],
+  "sample": null
+}

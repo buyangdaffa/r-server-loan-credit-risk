@@ -17,13 +17,15 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install runtime + dev dependencies
+        run: |
+          pip install -U pip
+          pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Regenerate processed CSVs
         run: python src/convert_data_to_csv.py
 
-      - name: Smoke check outputs
+      - name: Smoke check processed CSVs
         run: |
           python - <<'PY'
           import pandas as pd
@@ -36,3 +38,9 @@ jobs:
               assert len(df) > 0, f"empty {p}"
           print("ok:", [f.name for f in sorted(root.glob("*.csv"))])
           PY
+
+      - name: Run unit + smoke tests
+        run: pytest -q
+
+      - name: Train + evaluate on 1k subsample
+        run: python -m src.pipeline run-all --sample 1000 --skip-convert
